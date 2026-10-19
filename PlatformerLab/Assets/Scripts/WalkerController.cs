@@ -3,11 +3,6 @@ using UnityEngine.InputSystem;
 
 public class WalkerController : MonoBehaviour
 {
-    private Rigidbody2D rb;
-    private SpriteRenderer spriteRenderer;
-    private InputAction moveAction;
-    private float moveInput;
-
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 6f;
 
@@ -21,6 +16,10 @@ public class WalkerController : MonoBehaviour
     private bool jumpRequested;
     private bool isGrounded;
 
+    private Rigidbody2D rb;
+    private SpriteRenderer spriteRenderer;
+    private InputAction moveAction;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -31,6 +30,8 @@ public class WalkerController : MonoBehaviour
                   $"move={moveAction != null}");
     }
 
+    private float moveInput;
+
     void Update()
     {
         moveInput = moveAction.ReadValue<Vector2>().x;
@@ -38,15 +39,14 @@ public class WalkerController : MonoBehaviour
         {
             spriteRenderer.flipX = moveInput > 0f;
         }
-
     }
+
     void FixedUpdate()
     {
-        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
-        bool wasGrounded = isGrounded;
         isGrounded = Physics2D.OverlapCircle(
             groundCheck.position, groundCheckRadius, groundLayer) != null;
-        if (isGrounded != wasGrounded) Debug.Log($"isGrounded -> {isGrounded}");
+
+        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
     }
 
     void OnDrawGizmosSelected()
@@ -56,5 +56,4 @@ public class WalkerController : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
     }
-
 }
