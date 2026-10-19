@@ -396,7 +396,7 @@ Rigidbody2D:
   m_Constraints: 4
 --- !u!212 &843421598
 SpriteRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -453,6 +453,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!4 &843421599
 Transform:
   m_ObjectHideFlags: 0
@@ -488,6 +489,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  coyoteTime: 0.1
 --- !u!1 &883310328
 GameObject:
   m_ObjectHideFlags: 0

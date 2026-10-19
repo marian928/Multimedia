@@ -7,13 +7,16 @@ public class WalkerController : MonoBehaviour
     [SerializeField] private float moveSpeed = 6f;
 
     [Header("Jump")]
-    [SerializeField] private float jumpVelocity = 15f;
+    [SerializeField] private float jumpVelocity = 16.6f;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.15f;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float coyoteTime = 0.1f;
+    private float coyoteTimer;
 
     private InputAction jumpAction;
     private bool jumpRequested;
+    private bool jumpCutRequested;
     private bool isGrounded;
 
     private Rigidbody2D rb;
@@ -39,6 +42,15 @@ public class WalkerController : MonoBehaviour
         {
             spriteRenderer.flipX = moveInput > 0f;
         }
+
+        if (jumpAction.WasPressedThisFrame())
+        {
+            jumpRequested = true;
+        }
+        if(jumpAction.WasReleasedThisFrame())
+        {
+            jumpCutRequested = true;
+        }
     }
 
     void FixedUpdate()
@@ -46,7 +58,31 @@ public class WalkerController : MonoBehaviour
         isGrounded = Physics2D.OverlapCircle(
             groundCheck.position, groundCheckRadius, groundLayer) != null;
 
+        if (isGrounded) coyoteTimer = coyoteTime;
+        else
+            coyoteTimer -= Time.fixedDeltaTime;
+        if(jumpRequested && coyoteTimer > 0f)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpVelocity);
+            coyoteTimer = 0f; // a granted jump spends the whole window
+        }
+
         rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+
+        // 1. Process Jump Request
+        if (jumpRequested && isGrounded)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpVelocity);
+        }
+        // 2. Process Jump Cut (Short Jump)
+        if (jumpCutRequested && rb.linearVelocity.y > 0f)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
+        }
+
+        // 3. Reset flags at the VERY END of FixedUpdate
+        jumpRequested = false;
+        jumpCutRequested = false;
     }
 
     void OnDrawGizmosSelected()
