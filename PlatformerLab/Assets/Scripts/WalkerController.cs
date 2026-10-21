@@ -7,7 +7,7 @@ public class WalkerController : MonoBehaviour
     [SerializeField] private float moveSpeed = 6f;
 
     [Header("Jump")]
-    [SerializeField] private float jumpVelocity = 16.6f;
+    [SerializeField] private float jumpVelocity = 15f;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.15f;
     [SerializeField] private LayerMask groundLayer;
@@ -47,7 +47,8 @@ public class WalkerController : MonoBehaviour
         {
             jumpRequested = true;
         }
-        if(jumpAction.WasReleasedThisFrame())
+
+        if (jumpAction.WasReleasedThisFrame())
         {
             jumpCutRequested = true;
         }
@@ -59,28 +60,21 @@ public class WalkerController : MonoBehaviour
             groundCheck.position, groundCheckRadius, groundLayer) != null;
 
         if (isGrounded) coyoteTimer = coyoteTime;
-        else
-            coyoteTimer -= Time.fixedDeltaTime;
-        if(jumpRequested && coyoteTimer > 0f)
-        {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpVelocity);
-            coyoteTimer = 0f; // a granted jump spends the whole window
-        }
+        else            coyoteTimer -= Time.fixedDeltaTime;
 
         rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
 
-        // 1. Process Jump Request
-        if (jumpRequested && isGrounded)
+        if (jumpRequested && coyoteTimer > 0f)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpVelocity);
+            coyoteTimer = 0f;   // a granted jump spends the whole window
         }
-        // 2. Process Jump Cut (Short Jump)
+
         if (jumpCutRequested && rb.linearVelocity.y > 0f)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
         }
 
-        // 3. Reset flags at the VERY END of FixedUpdate
         jumpRequested = false;
         jumpCutRequested = false;
     }
